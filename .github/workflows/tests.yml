@@ -1,0 +1,66 @@
+name: Run tests
+concurrency: ci_tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ] 
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    # cache the ASDF directory, using the values from .tool-versions
+    - name: ASDF cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.asdf
+        key: ${{ runner.os }}-asdf-v2-${{ hashFiles('.tool-versions') }}
+      id: asdf-cache
+    # only run `asdf install` if we didn't hit the cache
+    - uses: asdf-vm/actions/install@v1
+      if: steps.asdf-cache.outputs.cache-hit != 'true'
+    # if we did hit the cache, set up the environment
+    - name: Setup ASDF environment
+      run: |
+        echo "ASDF_DIR=$HOME/.asdf" >> $GITHUB_ENV
+        echo "ASDF_DATA_DIR=$HOME/.asdf" >> $GITHUB_ENV
+      if: steps.asdf-cache.outputs.cache-hit == 'true'
+    - name: Reshim ASDF
+      run: |
+        echo "$ASDF_DIR/bin" >> $GITHUB_PATH
+        echo "$ASDF_DIR/shims" >> $GITHUB_PATH
+        $ASDF_DIR/bin/asdf reshim
+    - name: Restore dependencies cache
+      uses: actions/cache@v3
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-mix-
+    - name: Cache compiled build
+      id: cache-build
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-compiled-build
+      with:
+        path: _build
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-
+          ${{ runner.os }}-mix-
+    - name: Install dependencies
+      run: |
+        mix local.rebar --force
+        mix local.hex --force
+        mix deps.get
+    - name: Compile
+      run: mix compile
+    - name: Run tests
+      run: mix test
