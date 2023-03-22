@@ -1,0 +1,100 @@
+adobe:
+  login_url: https://adminconsole.adobe.com/team
+  destination_url_pattern: https://adminconsole.adobe.com/**/overview
+  username_selector: "internal:label=\"Email address\"i"
+  password_selector: "internal:label=\"Password\"i"
+  actions:
+    - name: download_users
+      http_method: GET
+      url: https://bps-il.adobe.io/jil-api/v2/organizations/:organization/users?filter_exclude_domain=techacct.adobe.com&page=0&page_size=20&productConfigurations=true&sort=FNAME_LNAME&sort_order=ASC
+      populate_placeholders_from_session_storage:
+        - client_id
+        - tokenValue
+        - roles.organization
+      headers: 
+        - x-api-key: :client_id
+        - authorization: Bearer :tokenValue
+      pagination:
+        strategy: page_params_in_url
+amplitude:
+  login_url: https://analytics.amplitude.com/login/:org_name
+  destination_url_pattern: https://analytics.amplitude.com/:org_name
+  username_selector: "input[placeholder=Email]"
+  password_selector: "input[placeholder=Password]"
+  actions:
+    - name: download_users
+      http_method: POST
+      body: '{"query":"query Users {\n  users {\n    ...userFields\n    __typename\n  }\n}\n\nfragment userFields on User {\n  id\n  alias\n  avatarVersion\n  blurb\n  createdAt\n  defaultAllProjectRole\n  defaultAppId\n  email\n  firstName\n  fullName\n  hasAvatar\n  hasOutstandingInvite\n  isConnectedToSlack\n  lastName\n  loginId\n  name\n  orgRole\n  orgTeam\n  title\n  pronouns\n  __typename\n}\n"}'
+      url: https://analytics.amplitude.com/t/graphql/org/:org_id?q=Users
+      response_path: data.users
+      headers:
+        - content-type: application/json
+        - origin: https://analytics.amplitude.com
+calendly:
+  login_url: https://calendly.com/app/login
+  destination_url_pattern: https://calendly.com/event_types/user/me
+  username_selector: "input[placeholder='email address']"
+  password_selector: "input[placeholder=password]"
+  actions:
+    - name: download_users
+      http_method: GET
+      url: https://calendly.com/api/organization/memberships?filter_term=&sort_field=name&sort_order=asc
+      response_path: results
+      pagination:
+        strategy: next_page_in_body
+        next_page_response_path: pagination.next_page
+        page_query_param: page
+figma:
+  login_url: https://www.figma.com/login
+  destination_url_pattern: https://www.figma.com/files/**
+  username_selector: "input[placeholder=Email]"
+  password_selector: "input[placeholder=Password]"
+  actions:
+    - name: download_users
+      http_method: GET
+      url: https://www.figma.com/api/teams/:team_id/members
+      response_path: meta
+loom:
+  login_url: https://www.loom.com/settings/workspace
+  destination_url_pattern: https://www.loom.com/settings/workspace
+  username_selector: "input[placeholder='Enter your email to continue…']"
+  password_selector: "#password"
+  actions:
+    - name: download_users
+      http_method: POST
+      body: '[{"operationName":"FilterWorkspaceMembers","variables":{"roles":["admin","viewer","creator","creator_lite","guest"],"status":"active","query":"","first":20,"after":""},"query":"query FilterWorkspaceMembers($query: String!, $roles: [OrganizationMemberRole!]!, $status: OrganizationMemberStatus!, $first: Int!, $after: String) {\n  result: searchPaginatedWorkspaceMembers {\n    ... on SearchPaginatedWorkspaceMembersResult {\n      accepted(\n        query: $query\n        roles: $roles\n        status: $status\n        first: $first\n        after: $after\n      ) {\n        edges {\n          node {\n            member_role\n            member_status\n            user {\n              id\n              email\n              display_name\n              first_name\n              last_name\n              createdAt\n              avatars {\n                thumb\n                __typename\n              }\n              __typename\n            }\n            pending_downgrade {\n              to_role\n              status\n              __typename\n            }\n            __typename\n          }\n          __typename\n        }\n        pageInfo {\n          hasPreviousPage\n          hasNextPage\n          startCursor\n          endCursor\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"}]'
+      url: https://www.loom.com/graphql
+      response_path: data.result.accepted.edges
+      headers:
+        - content-type: application/json
+      pagination:
+        strategy: next_cursor_in_body_to_send_as_json
+        next_cursor_response_path: data.result.accepted.pageInfo.endCursor
+        has_next_page_response_path: data.result.accepted.pageInfo.hasNextPage
+        json_body_cursor_path: variables.after
+mezmo:
+  login_url: https://app.mezmo.com/account/signin
+  destination_url_pattern: https://app.mezmo.com/**/logs/*
+  username_selector: "data-testid=email"
+  password_selector: "data-testid=password"
+  actions:
+    - name: download_users
+      http_method: GET
+      url: https://app.mezmo.com/manage/get-team-members
+      response_path: users
+      headers: 
+        - x-account-context: :account_id
+        - x-requested-with: XMLHttpRequest
+miro:
+  login_url: https://miro.com/login
+  destination_url_pattern: https://miro.com/app/**
+  username_selector: "data-testid=mr-form-login-email-1"
+  password_selector: "data-testid=mr-form-login-password-1"
+  actions:
+    - name: download_users
+      http_method: GET
+      url: https://miro.com/api/v1/accounts/:team_id/users
+      response_path: data
+      pagination:
+        strategy: url_in_body
+        next_url_response_path: nextLink

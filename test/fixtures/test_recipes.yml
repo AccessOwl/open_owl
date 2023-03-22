@@ -1,0 +1,90 @@
+adobe:
+  login_url: https://adminconsole.adobe.com/team
+  destination_url_pattern: https://adminconsole.adobe.com/**/overview
+  username_selector: "internal:label=\"Email address\"i"
+  password_selector: "internal:label=\"Password\"i"
+  actions:
+    - name: download_users
+      http_method: GET
+      url: https://adobe.io/api/sth
+      populate_placeholders_from_session_storage:
+        - client_id
+        - tokenValue
+        - roles.organization
+      headers: 
+        - x-api-key: :client_id
+        - authorization: Bearer :tokenValue
+      pagination:
+        strategy: page_params_in_url
+        page_query_param: "p"
+badobe:
+  login_url: https://adminconsole.adobe.com/team
+  destination_url_pattern: https://adminconsole.adobe.com/**/overview
+  username_selector: "internal:label=\"Email address\"i"
+  password_selector: "internal:label=\"Password\"i"
+  actions:
+    - name: download_users
+      http_method: GET
+      url: https://adobe.io/api/sth
+      pagination:
+        strategy: offset_params_in_url
+        offset_query_param: "start_offset"
+        limit_query_param: "size"
+asana:
+  login_url: https://asana.com/login
+  destination_url_pattern: https://asana.com/app/**
+  username_selector: "#a"
+  password_selector: "#b"
+  actions:
+    - name: change_sth
+      http_method: POST
+      body: "{\"query\":\"query Users\"}"
+      url: https://asana.com/api/sth
+      headers: 
+        - X-Dynamic: :team_id
+        - X-Static: Blub 1
+      response_path: meta.data
+calendly:
+  login_url: https://calendly.com/app/login
+  destination_url_pattern: https://calendly.com/event_types/user/me
+  username_selector: "input[placeholder='email address']"
+  password_selector: "input[placeholder=password]"
+  actions:
+    - name: download_users
+      http_method: GET
+      url: https://calendly.com/api/organization/memberships
+      response_path: results
+      pagination:
+        strategy: next_page_in_body
+        next_page_response_path: pagination.next_page
+        page_query_param: page
+loom:
+  login_url: https://loom.com/login
+  destination_url_pattern: https://loom.com/app/**
+  username_selector: "#a"
+  password_selector: "#b"
+  actions:
+    - name: download_users
+      http_method: GET
+      url: https://loom.com/api/v1
+      response_path: data
+      pagination:
+        strategy: next_cursor_in_body_to_send_as_json
+        next_cursor_response_path: pagination.next_page
+        has_next_page_response_path: pagination.has_next_page
+        json_body_cursor_path: variables.after
+      
+miro:
+  login_url: https://miro.com/login
+  destination_url_pattern: https://miro.com/app/**
+  username_selector: "data-testid=mr1"
+  password_selector: "data-testid=mr2"
+  actions:
+    - name: download_users
+      http_method: GET
+      url: https://miro.com/api/v1/accounts/:team_id/users
+      response_path: data
+      pagination:
+        strategy: url_in_body
+        next_url_response_path: nextLink
+      
