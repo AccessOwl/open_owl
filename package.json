@@ -1,0 +1,21 @@
+{
+  "name": "open_owl",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "start": "npm run start:dev",
+    "start:prod": "node dist/main.js",
+    "start:dev": "ts-node-esm -T ts_src/main.ts",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "dependencies": {
+    "@types/js-yaml": "^4.0.5",
+    "js-yaml": "^4.1.0",
+    "playwright": "^1.31.2"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "ES2022",
+    "target": "ES2022",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": false,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": [
+      "ESNext"
+    ]
+  },
+  "baseUrl": "./",
+  "include": [
+    "ts_src/**/*"
+  ]
+}
