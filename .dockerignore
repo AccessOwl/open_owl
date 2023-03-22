@@ -1,0 +1,9 @@
+npm-debug.log
+yarn.lock
+_build
+!_build/dev/lib/castore
+deps
+!deps/castore
+node_modules
+dist
+.gitignore

@@ -1,0 +1,7 @@
+services:
+  owl:
+    build: ./
+    volumes:
+      - ${PWD}/auth_cache:/app/auth_cache
+      - ${PWD}/results:/app/results
+      - ${PWD}/recipes.yml:/app/recipes.yml
