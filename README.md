@@ -82,6 +82,11 @@ OpenOwl signs in like a regular user by entering username and password (RPA via 
 
 This approach only works for SaaS applications with internal APIs. With the rise of single page apps (SPA) (think about React.js, Vue etc.), most applications can be supported. Besides SaaS applications this tool can also be used for internal apps.
 
+## Quick Demo
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=0Kz2EwL7xQs" target="_blank">
+ <img src="http://img.youtube.com/vi/0Kz2EwL7xQs/0.jpg" alt="Watch the video" width="480" border="0" />
+</a>
 
 ## Known limitations
 1. User Account: The user account needs administrator rights (or a similar permissions that grants access to user lists).
